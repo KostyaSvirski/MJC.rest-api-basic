@@ -12,8 +12,7 @@ public class IntermediateCertificateLink extends PreparedValidatorChain<GiftCert
         if(bean == null) {
             return false;
         }
-        if(bean.getName() == null || bean.getPrice() == 0 || bean.getDuration() == null
-                || bean.getCreateDate() == null || bean.getLastUpdateDate() == null || bean.getTags() == null) {
+        if(bean.getName() == null || bean.getPrice() == 0 || bean.getDuration() == null) {
             return false;
         }
         return checkNextLink(bean);

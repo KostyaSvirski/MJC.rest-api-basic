@@ -2,10 +2,13 @@ package com.epam.esm.converter;
 
 import com.epam.esm.dto.GiftCertificateDTO;
 import com.epam.esm.entity.GiftCertificate;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+@Component
 public class GiftCertificateToDTOConverter implements Function<GiftCertificate, GiftCertificateDTO> {
 
     @Override
@@ -15,11 +18,11 @@ public class GiftCertificateToDTOConverter implements Function<GiftCertificate, 
         dto.setName(giftCertificate.getName());
         dto.setDescription(giftCertificate.getDescription());
         dto.setPrice(giftCertificate.getPrice());
-        dto.setCreateDate(giftCertificate.getCreateDate());
-        dto.setDuration(LocalDate.of(giftCertificate.getDuration().getYear(),
-                giftCertificate.getDuration().getMonth(), giftCertificate.getDuration().getDayOfMonth()));
-        dto.setLastUpdateDate(giftCertificate.getLastUpdateDate());
-        dto.addTagsDependency(new TagToTagDTOConverter().apply(giftCertificate.getTagDependsOnCertificate()));
+        dto.setCreateDate(giftCertificate.getCreateDate().toString());
+        dto.setDuration(giftCertificate.getDuration().toString());
+        dto.setLastUpdateDate(giftCertificate.getLastUpdateDate().toString());
+        dto.setTags(giftCertificate.getTagsDependsOnCertificate().stream()
+                .map(tag -> new TagToTagDTOConverter().apply(tag)).collect(Collectors.toList()));
         return dto;
     }
 }

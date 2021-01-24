@@ -1,6 +1,8 @@
 package com.epam.esm.entity;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -11,14 +13,13 @@ public class GiftCertificate{
     private String name;
     private String description;
     private long price;
-    private LocalDateTime duration;
-    private LocalDateTime createDate;
-    private LocalDateTime lastUpdateDate;
-    private Tag tagDependsOnCertificate;
+    private Period duration;
+    private Instant createDate;
+    private Instant lastUpdateDate;
+    private List<Tag> tagsDependsOnCertificate;
 
-    public GiftCertificate(long id, String name, String description, long price, LocalDateTime duration,
-                           LocalDateTime createDate, LocalDateTime lastUpdateDate,
-                           Tag tagDependsOnCertificate) {
+    public GiftCertificate(long id, String name, String description, long price, Period duration,
+                           Instant createDate, Instant lastUpdateDate) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -26,7 +27,6 @@ public class GiftCertificate{
         this.duration = duration;
         this.createDate = createDate;
         this.lastUpdateDate = lastUpdateDate;
-        this.tagDependsOnCertificate = tagDependsOnCertificate;
     }
 
     public GiftCertificate() {
@@ -48,36 +48,39 @@ public class GiftCertificate{
         this.price = price;
     }
 
-    public LocalDateTime getDuration() {
+    public Period getDuration() {
         return duration;
     }
 
-    public void setDuration(LocalDateTime duration) {
+    public void setDuration(Period duration) {
         this.duration = duration;
     }
 
-    public LocalDateTime getCreateDate() {
+    public Instant getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(LocalDateTime createDate) {
+    public void setCreateDate(Instant createDate) {
         this.createDate = createDate;
     }
 
-    public LocalDateTime getLastUpdateDate() {
+    public Instant getLastUpdateDate() {
         return lastUpdateDate;
     }
 
-    public void setLastUpdateDate(LocalDateTime lastUpdateDate) {
+    public void setLastUpdateDate(Instant lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public Tag getTagDependsOnCertificate() {
-        return tagDependsOnCertificate;
+    public List<Tag> getTagsDependsOnCertificate() {
+        return tagsDependsOnCertificate;
     }
 
-    public void setTagDependsOnCertificate(Tag tagDependsOnCertificate) {
-        this.tagDependsOnCertificate = tagDependsOnCertificate;
+    public void setTagsDependsOnCertificate(Tag tag) {
+        if(tagsDependsOnCertificate == null) {
+            this.tagsDependsOnCertificate = new ArrayList<>();
+        }
+        this.tagsDependsOnCertificate.add(tag);
     }
 
     public long getId() {
@@ -106,13 +109,13 @@ public class GiftCertificate{
                 && Objects.equals(duration, that.duration)
                 && Objects.equals(createDate, that.createDate)
                 && Objects.equals(lastUpdateDate, that.lastUpdateDate)
-                && Objects.equals(tagDependsOnCertificate, that.tagDependsOnCertificate);
+                && Objects.equals(tagsDependsOnCertificate, that.tagsDependsOnCertificate);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), description, price, duration, createDate, lastUpdateDate,
-                tagDependsOnCertificate);
+                tagsDependsOnCertificate);
     }
 
     @Override
@@ -123,7 +126,7 @@ public class GiftCertificate{
         sb.append(", duration=").append(duration);
         sb.append(", createDate=").append(createDate);
         sb.append(", lastUpdateDate=").append(lastUpdateDate);
-        sb.append(", tagDependsOnCertificate=").append(tagDependsOnCertificate);
+        sb.append(", tagDependsOnCertificate=").append(tagsDependsOnCertificate);
         sb.append('}');
         return sb.toString();
     }
@@ -157,23 +160,28 @@ public class GiftCertificate{
             return this;
         }
 
-        public GiftCertificateBuilder buildDuration(LocalDateTime duration) {
+        public GiftCertificateBuilder buildDuration(Period duration) {
             newGiftCertificate.setDuration(duration);
             return this;
         }
 
-        public GiftCertificateBuilder buildCreateDate(LocalDateTime createDate) {
+        public GiftCertificateBuilder buildCreateDate(Instant createDate) {
             newGiftCertificate.setCreateDate(createDate);
             return this;
         }
 
-        public GiftCertificateBuilder buildLastUpdateDate(LocalDateTime lastUpdateDate) {
+        public GiftCertificateBuilder buildLastUpdateDate(Instant lastUpdateDate) {
             newGiftCertificate.setLastUpdateDate(lastUpdateDate);
             return this;
         }
 
         public GiftCertificateBuilder buildTagDependsOnCertificate(Tag tagDependsOnCertificate) {
-            newGiftCertificate.setTagDependsOnCertificate(tagDependsOnCertificate);
+            newGiftCertificate.setTagsDependsOnCertificate(tagDependsOnCertificate);
+            return this;
+        }
+
+        public GiftCertificateBuilder buildListOfTags(List<Tag> tags) {
+            newGiftCertificate.tagsDependsOnCertificate = tags;
             return this;
         }
 

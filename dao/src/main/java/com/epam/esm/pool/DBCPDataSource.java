@@ -14,15 +14,8 @@ import java.util.Properties;
 @Repository
 public class DBCPDataSource {
 
-    private final BasicDataSource dataSource;
     private static DBCPDataSource instance;
-
-    public static synchronized DBCPDataSource getInstance() throws DBCPDataSourceException {
-        if(instance == null) {
-            instance = new DBCPDataSource();
-        }
-        return instance;
-    }
+    private final BasicDataSource dataSource;
 
     private DBCPDataSource() throws DBCPDataSourceException {
         dataSource = new BasicDataSource();
@@ -31,7 +24,7 @@ public class DBCPDataSource {
         try {
             properties.load(new FileReader(file));
         } catch (IOException e) {
-           throw new DBCPDataSourceException("property not found");
+            throw new DBCPDataSourceException("property not found");
         }
         dataSource.setUrl(properties.getProperty("url"));
         dataSource.setDriverClassName(properties.getProperty("driverClassName"));
@@ -44,6 +37,13 @@ public class DBCPDataSource {
         dataSource.addConnectionProperty("serverTimezone", properties.getProperty("serverTimezone"));
         dataSource.addConnectionProperty("useUnicode", properties.getProperty("useUnicode"));
 
+    }
+
+    public static synchronized DBCPDataSource getInstance() throws DBCPDataSourceException {
+        if (instance == null) {
+            instance = new DBCPDataSource();
+        }
+        return instance;
     }
 
     public Connection getConnection() throws DBCPDataSourceException {

@@ -1,6 +1,6 @@
 package com.epam.esm.exception;
 
-public class DBCPDataSourceException extends Exception{
+public class DBCPDataSourceException extends Exception {
 
     public DBCPDataSourceException() {
         super();
@@ -18,7 +18,8 @@ public class DBCPDataSourceException extends Exception{
         super(cause);
     }
 
-    protected DBCPDataSourceException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected DBCPDataSourceException
+            (String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

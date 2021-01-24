@@ -3,9 +3,7 @@ package com.epam.esm.dto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.Period;
 import java.util.List;
 
 @Component
@@ -15,13 +13,13 @@ public class GiftCertificateDTO {
     private String name;
     private String description;
     private long price;
-    private LocalDate duration;
-    private LocalDateTime createDate;
-    private LocalDateTime lastUpdateDate;
+    private String duration;
+    private String createDate;
+    private String lastUpdateDate;
     private List<TagDTO> tags;
 
-    public GiftCertificateDTO(long id, String name, String description, long price, LocalDate duration,
-                              LocalDateTime createDate, LocalDateTime lastUpdateDate, List<TagDTO> tags) {
+    public GiftCertificateDTO(long id, String name, String description, long price,
+                              String duration, String createDate, String lastUpdateDate) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -29,7 +27,6 @@ public class GiftCertificateDTO {
         this.duration = duration;
         this.createDate = createDate;
         this.lastUpdateDate = lastUpdateDate;
-        this.tags = tags;
     }
 
     public GiftCertificateDTO() {
@@ -67,27 +64,27 @@ public class GiftCertificateDTO {
         this.price = price;
     }
 
-    public LocalDate getDuration() {
+    public String getDuration() {
         return duration;
     }
 
-    public void setDuration(LocalDate duration) {
+    public void setDuration(String duration) {
         this.duration = duration;
     }
 
-    public LocalDateTime getCreateDate() {
+    public String getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(LocalDateTime createDate) {
+    public void setCreateDate(String createDate) {
         this.createDate = createDate;
     }
 
-    public LocalDateTime getLastUpdateDate() {
+    public String getLastUpdateDate() {
         return lastUpdateDate;
     }
 
-    public void setLastUpdateDate(LocalDateTime lastUpdateDate) {
+    public void setLastUpdateDate(String lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
     }
 
@@ -100,10 +97,18 @@ public class GiftCertificateDTO {
         this.tags = tags;
     }
 
-    public void addTagsDependency(TagDTO tag) {
-        if(tags == null) {
-            tags = new ArrayList<>();
-        }
-        tags.add(tag);
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("GiftCertificateDTO{");
+        sb.append("id=").append(id);
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", description='").append(description).append('\'');
+        sb.append(", price=").append(price);
+        sb.append(", duration=").append(duration);
+        sb.append(", createDate=").append(createDate);
+        sb.append(", lastUpdateDate=").append(lastUpdateDate);
+        sb.append(", tags=").append(tags);
+        sb.append('}');
+        return sb.toString();
     }
 }

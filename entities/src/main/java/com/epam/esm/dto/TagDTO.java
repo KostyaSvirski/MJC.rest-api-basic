@@ -32,4 +32,12 @@ public class TagDTO {
         this.id = id;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("TagDTO{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", id=").append(id);
+        sb.append('}');
+        return sb.toString();
+    }
 }
