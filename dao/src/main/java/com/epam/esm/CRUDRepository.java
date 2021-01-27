@@ -10,7 +10,7 @@ public interface CRUDRepository<T> {
 
     void delete(long id) throws DaoException;
 
-    List<T> find(String name) throws DaoException;
+    List<T> find(long id) throws DaoException;
 
     List<T> findAll() throws DaoException;
 

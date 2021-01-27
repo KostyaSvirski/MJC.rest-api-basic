@@ -2,7 +2,6 @@ package com.epam.esm.pool;
 
 import com.epam.esm.exception.DBCPDataSourceException;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.springframework.stereotype.Repository;
 
 import java.io.File;
 import java.io.FileReader;
@@ -11,7 +10,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
-@Repository
 public class DBCPDataSource {
 
     private static DBCPDataSource instance;

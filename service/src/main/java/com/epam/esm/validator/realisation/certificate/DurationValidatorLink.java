@@ -8,10 +8,13 @@ import java.util.regex.Pattern;
 
 public class DurationValidatorLink extends IntermediateCertificateLink {
 
-    private static final String REG_EXP_DURATION = "^P[\\d]Y[\\d]M[\\d]D$";
+    private static final String REG_EXP_DURATION = "^P[\\d]{1,4}Y[\\d]{1,2}M[\\d]{1,2}D$";
 
     @Override
     public boolean validate(GiftCertificateDTO bean) {
+        if(bean.getDuration() == null) {
+            return checkNextLink(bean);
+        }
         Pattern pattern = Pattern.compile(REG_EXP_DURATION);
         Matcher matcher = pattern.matcher(bean.getDuration());
         if (!matcher.matches()) {

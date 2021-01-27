@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -28,33 +27,51 @@ public class GiftCertificateController {
     @Autowired
     private GiftCertificateService service;
 
-    @GetMapping("/")
-    public ResponseEntity<List<GiftCertificateDTO>> findAllCertificates(@RequestParam Map<String, String> params) {
+    @GetMapping(value = "/")
+    public ResponseEntity retrieveCertificates
+            (@RequestParam(required = false) String partOfName,
+             @RequestParam(required = false) String partOfDescription,
+             @RequestParam(required = false) String nameOfTag,
+             @RequestParam(required = false) String field,
+             @RequestParam(required = false) String method) {
         List<GiftCertificateDTO> results = null;
         try {
-            results = service.searchByParam(params);
+            if (partOfName != null) {
+                results = service.findByPartOfName(partOfName);
+            } else if (partOfDescription != null) {
+                results = service.findByPartOfDescription(partOfDescription);
+            } else if (nameOfTag != null) {
+                results = service.findByTag(nameOfTag);
+            } else if (field != null && method != null) {
+                results = service.sortByField(field, method);
+            } else {
+                results = service.findAll();
+            }
+            if (results == null || results.isEmpty()) {
+                return new ResponseEntity<>("not found", HttpStatus.NOT_FOUND);
+            }
             return new ResponseEntity<>(results, HttpStatus.OK);
         } catch (ServiceException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/{name}")
-    public ResponseEntity<GiftCertificateDTO> findSpecificCertificate(@PathVariable(required = false) String name) {
+    @GetMapping("/{id}")
+    public ResponseEntity findSpecificCertificate(@PathVariable long id) {
         Optional<GiftCertificateDTO> result;
         try {
-            result = service.find(name);
-            if (!result.isPresent()) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            return new ResponseEntity<>(result.get(), HttpStatus.OK);
+            result = service.find(id);
+            return result
+                    .map(certificateDTO -> new ResponseEntity(certificateDTO, HttpStatus.OK))
+                    .orElseGet(() -> new ResponseEntity("certificate with id " + id + "not found",
+                            HttpStatus.NOT_FOUND));
         } catch (ServiceException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/")
-    public ResponseEntity<Integer> createNewCertificate(@RequestBody GiftCertificateDTO certificateDTO) {
+    public ResponseEntity createNewCertificate(@RequestBody GiftCertificateDTO certificateDTO) {
         certificateDTO.setCreateDate(Instant.now().toString());
         certificateDTO.setLastUpdateDate(Instant.now().toString());
         try {
@@ -62,36 +79,34 @@ public class GiftCertificateController {
             if (result != 0) {
                 return new ResponseEntity(result, HttpStatus.CREATED);
             } else {
-                return new ResponseEntity(HttpStatus.BAD_REQUEST);
+                return new ResponseEntity("not valid data", HttpStatus.BAD_REQUEST);
             }
         } catch (ServiceException e) {
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteCertificate(@PathVariable(required = false) long id) {
+    public ResponseEntity deleteCertificate(@PathVariable long id) {
         try {
             service.delete(id);
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity("certificate with id " + id + " deleted", HttpStatus.OK);
         } catch (ServiceException e) {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
         }
 
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity editCertificate(@RequestParam Map<String, String> paramsMap, @PathVariable long id) {
+    public ResponseEntity updateCertificate(@RequestBody GiftCertificateDTO certificate, @PathVariable long id) {
         try {
-            if(paramsMap != null || !paramsMap.isEmpty()) {
-                Instant lastUpdateDate = Instant.now();
-                boolean result = service.update(paramsMap, id, lastUpdateDate);
-                return new ResponseEntity(HttpStatus.NO_CONTENT);
-            }
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            service.update(certificate, id);
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
         } catch (ServiceException e) {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
         }
+
     }
+
 
 }

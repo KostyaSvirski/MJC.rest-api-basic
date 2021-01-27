@@ -5,7 +5,6 @@ import com.epam.esm.converter.TagDTOToTagEntityConverter;
 import com.epam.esm.converter.TagToTagDTOConverter;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.DBCPDataSourceException;
 import com.epam.esm.exception.DaoException;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.service.TagService;
@@ -36,20 +35,20 @@ public class TagServiceImpl implements TagService {
             return listOfEntities.stream()
                     .map(tag -> converterToDTO.apply(tag))
                     .collect(Collectors.toList());
-        } catch (DBCPDataSourceException | DaoException e) {
+        } catch (DaoException e) {
             throw new ServiceException("exception in dao", e.getCause());
         }
     }
 
     @Override
-    public Optional<TagDTO> find(String name) throws ServiceException {
+    public Optional<TagDTO> find(long id) throws ServiceException {
         try {
-            List<Tag> listFromDao = tagDao.find(name);
+            List<Tag> listFromDao = tagDao.find(id);
             Optional<TagDTO> tagToFind = listFromDao.stream()
                     .map(tag -> converterToDTO.apply(tag))
                     .findFirst();
             return tagToFind;
-        } catch (DBCPDataSourceException | DaoException e) {
+        } catch (DaoException e) {
             throw new ServiceException("exception in dao", e.getCause());
         }
     }
@@ -62,7 +61,7 @@ public class TagServiceImpl implements TagService {
             try {
                 int id = tagDao.create(converterToEntity.apply(tagDTO));
                 return id;
-            } catch (DBCPDataSourceException | DaoException e) {
+            } catch (DaoException e) {
                 throw new ServiceException("exception in dao", e.getCause());
             }
         }
@@ -73,7 +72,7 @@ public class TagServiceImpl implements TagService {
     public void delete(long id) throws ServiceException {
         try {
             tagDao.delete(id);
-        } catch (DBCPDataSourceException | DaoException e) {
+        } catch (DaoException e) {
             throw new ServiceException("exception in dao", e.getCause());
         }
     }

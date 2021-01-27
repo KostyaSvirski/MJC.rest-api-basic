@@ -11,10 +11,10 @@ public class TagsValidatorLink extends IntermediateCertificateLink {
     public boolean validate(GiftCertificateDTO bean) {
         TagNameValidatorLink validatorForTags = new TagNameValidatorLink();
         if (bean.getTags() == null) {
-            return false;
+            return checkNextLink(bean);
         }
         for (TagDTO tag : bean.getTags()) {
-            if (tag.getId() == 0 || !validatorForTags.validate(tag)) {
+            if (tag.getId() <= 0 || !validatorForTags.validate(tag)) {
                 return false;
             }
         }

@@ -6,8 +6,6 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.DBCPDataSourceException;
 import com.epam.esm.exception.DaoException;
 import com.epam.esm.pool.DBCPDataSource;
-import com.epam.esm.util.RequestCreator;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Repository;
 
@@ -22,7 +20,6 @@ import java.time.temporal.ChronoField;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public class CertificateDaoImpl implements GiftCertificateDao {
@@ -31,8 +28,6 @@ public class CertificateDaoImpl implements GiftCertificateDao {
             " duration, create_date, last_update_date) values (?, ?, ?, ?, ?, ?)";
     private static final String SQL_CREATE_JUNCTIONS_WITH_TAGS = "insert into junction_gift_cerficates_and_tags " +
             "(id_certificate, id_tag) values (?, ?)";
-    private static final String SQL_FIND_ID_SPECIFIC_CERTIFICATE = "select id_certificate from gift_certificate " +
-            "where name = ?";
     private static final String SQL_FIND_ID_SPECIFIC_TAG = "select id_tag from tag_for_certificates " +
             "where id_tag = ?";
     private static final String SQL_FIND_LAST_ID = "select max(id_certificate) from gift_certificate";
@@ -40,7 +35,7 @@ public class CertificateDaoImpl implements GiftCertificateDao {
     private static final String SQL_DELETE_JUNCTIONS = "delete from junction_gift_cerficates_and_tags " +
             "where id_certificate = ?";
     private static final String SQL_UPDATE_CERTIFICATE = "update gift_certificate set name = ?, description = ?," +
-            " price = ?, duration = ?, last_update_date = ? where id_certificate = ?";
+            " price = ?, duration = ? where id_certificate = ?";
     private static final String SQL_FIND_ALL_CERTIFICATES = "select gift_certificate.id_certificate," +
             " gift_certificate.name, description, price, duration, create_date, last_update_date," +
             " tag_for_certificates.id_tag," +
@@ -56,7 +51,7 @@ public class CertificateDaoImpl implements GiftCertificateDao {
             " inner join junction_gift_cerficates_and_tags on gift_certificate.id_certificate =" +
             " junction_gift_cerficates_and_tags.id_certificate" +
             " inner join tag_for_certificates on junction_gift_cerficates_and_tags.id_tag = " +
-            " tag_for_certificates.id_tag where gift_certificate.name = ?";
+            " tag_for_certificates.id_tag where gift_certificate.id_certificate = ?";
     private static final String SQL_SEARCH_BY_PART_OF_NAME = "select gift_certificate.id_certificate," +
             " gift_certificate.name, description, price, duration, create_date, last_update_date," +
             " tag_for_certificates.id_tag," +
@@ -88,15 +83,13 @@ public class CertificateDaoImpl implements GiftCertificateDao {
             " inner join junction_gift_cerficates_and_tags on gift_certificate.id_certificate =" +
             " junction_gift_cerficates_and_tags.id_certificate" +
             " inner join tag_for_certificates on junction_gift_cerficates_and_tags.id_tag = " +
-            " tag_for_certificates.id_tag where tag_for_certificates.id_tag = ? ";
-
-    @Autowired
-    private DBCPDataSource dataSource;
+            " tag_for_certificates.id_tag where tag_for_certificates.name = ? ";
 
     @Override
     public int create(GiftCertificate certificate) throws DaoException {
         Connection connection = null;
         try {
+            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 connection.setAutoCommit(false);
@@ -151,6 +144,7 @@ public class CertificateDaoImpl implements GiftCertificateDao {
     public void delete(long id) throws DaoException {
         Connection connection = null;
         try {
+            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 connection.setAutoCommit(false);
@@ -177,13 +171,14 @@ public class CertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public List<GiftCertificate> find(String name) throws DaoException {
+    public List<GiftCertificate> find(long id) throws DaoException {
         Connection connection = null;
         try {
+            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 PreparedStatement ps = connection.prepareStatement(SQL_FIND_SPECIFIC_CERTIFICATE);
-                ps.setString(1, name);
+                ps.setInt(1, (int) id);
                 ResultSet rs = ps.executeQuery();
                 List<GiftCertificate> specificCertificates = createFoundList(rs);
                 return specificCertificates;
@@ -201,6 +196,7 @@ public class CertificateDaoImpl implements GiftCertificateDao {
     public List<GiftCertificate> findAll() throws DaoException {
         Connection connection = null;
         try {
+            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 PreparedStatement ps = connection.prepareStatement(SQL_FIND_ALL_CERTIFICATES);
@@ -218,28 +214,35 @@ public class CertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public void update(Map<String, String> paramsMap, long id, Instant timeOfUpdate) throws DaoException {
+    public void update(GiftCertificate certificateForUpdate, long id) throws DaoException {
         try {
+            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             Connection connection = dataSource.getConnection();
-            String specificRequest = RequestCreator.createUpdate(paramsMap);
             try {
-                PreparedStatement ps = connection.prepareStatement(specificRequest);
-                int i = 1;
-                for (Map.Entry<String, String> entry : paramsMap.entrySet()) {
-                    if (entry.getKey().equals("price")) {
-                        ps.setLong(i, Long.parseLong(entry.getValue()));
-                    } else if (entry.getKey().equals("duration")) {
-                        ps.setDate(i, Date.valueOf(Period.parse(entry.getValue())
-                                .addTo(LocalDate.now()).toString()));
-                    } else {
-                        ps.setString(i, entry.getValue());
-                    }
-                    i++;
+                connection.setAutoCommit(false);
+                PreparedStatement ps = connection.prepareStatement(SQL_FIND_SPECIFIC_CERTIFICATE);
+                ps.setInt(1, (int) id);
+                ResultSet rs = ps.executeQuery();
+                List<GiftCertificate> certificates = createFoundList(rs);
+                if (!certificates.isEmpty()) {
+                    GiftCertificate certificateFromDb = certificates.get(0);
+                    GiftCertificate forUpdate = addInfoForUpdate(certificateFromDb, certificateForUpdate);
+                    ps = connection.prepareStatement(SQL_UPDATE_CERTIFICATE);
+                    ps.setString(1, forUpdate.getName());
+                    ps.setString(2, forUpdate.getDescription());
+                    ps.setLong(3, forUpdate.getPrice());
+                    ps.setDate(4, Date.valueOf(forUpdate.getDuration()
+                            .addTo(LocalDate.now()).toString()));
+                    ps.setInt(5, (int) id);
+                    ps.executeUpdate();
+                    connection.commit();
                 }
-                ps.setTimestamp(i, Timestamp.from(timeOfUpdate));
-                ps.setInt(i + 1, (int) id);
-                ps.executeUpdate();
             } catch (SQLException throwables) {
+                try {
+                    connection.rollback();
+                } catch (SQLException e) {
+                    throw new DaoException("error due to rollback", throwables);
+                }
                 throw new DaoException("error occurs while executing request", throwables);
             } finally {
                 dataSource.closeConnection(connection);
@@ -247,15 +250,15 @@ public class CertificateDaoImpl implements GiftCertificateDao {
         } catch (DBCPDataSourceException e) {
             throw new DaoException(e.getMessage());
         }
-
     }
 
     @Override
-    public List<GiftCertificate> sortCertificates(Map<String, String> paramsMap) throws DaoException {
+    public List<GiftCertificate> sortCertificates(String field, String method) throws DaoException {
         try {
+            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             Connection connection = dataSource.getConnection();
             try {
-                String specificRequest = createSpecificRequest(paramsMap);
+                String specificRequest = createSpecificRequestForSort(field, method);
                 PreparedStatement ps = connection.prepareStatement(specificRequest);
                 ResultSet rs = ps.executeQuery();
                 return createFoundList(rs);
@@ -283,6 +286,7 @@ public class CertificateDaoImpl implements GiftCertificateDao {
     private List<GiftCertificate> searchCertificatesByParam(String param, String sqlSearchRequest)
             throws DaoException {
         try {
+            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             Connection connection = dataSource.getConnection();
             try {
                 String specificRequest = createSpecificRequest(param, sqlSearchRequest);
@@ -300,12 +304,13 @@ public class CertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public List<GiftCertificate> searchByTag(long idOfTag) throws DaoException {
+    public List<GiftCertificate> searchByTag(String nameOfTag) throws DaoException {
         try {
+            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             Connection connection = dataSource.getConnection();
             try {
                 PreparedStatement ps = connection.prepareStatement(SQL_FIND_BY_TAGS);
-                ps.setInt(1, (int) idOfTag);
+                ps.setString(1, nameOfTag);
                 ResultSet rs = ps.executeQuery();
                 return createFoundList(rs);
             } catch (SQLException throwables) {
@@ -350,9 +355,9 @@ public class CertificateDaoImpl implements GiftCertificateDao {
                         .buildId(id).buildName(name).buildDescription(description)
                         .buildPrice(price)
                         .buildDuration(Period.of(correctLocalDate.getYear(), correctLocalDate.getMonthValue(),
-                                correctLocalDate.getDayOfMonth()))
-                        .buildCreateDate(createDate.toInstant(ZoneOffset.UTC))
-                        .buildLastUpdateDate(lastUpdateDate.toInstant(ZoneOffset.UTC))
+                                correctLocalDate.getDayOfMonth()).toString())
+                        .buildCreateDate(createDate.toInstant(ZoneOffset.UTC).toString())
+                        .buildLastUpdateDate(lastUpdateDate.toInstant(ZoneOffset.UTC).toString())
                         .buildTagDependsOnCertificate(new Tag.TagBuilder().buildId(idTag)
                                 .buildName(nameOfTag).finishBuilding())
                         .finishBuilding());
@@ -362,11 +367,11 @@ public class CertificateDaoImpl implements GiftCertificateDao {
         return resultList;
     }
 
-    private String createSpecificRequest(Map<String, String> paramsMap) {
+    private String createSpecificRequestForSort(String field, String method) {
         StringBuilder sb = new StringBuilder(SQL_SORT_CERTIFICATES);
-        sb.append(paramsMap.get("sort"));
+        sb.append(field);
         sb.append(" ");
-        sb.append(paramsMap.get("method"));
+        sb.append(method);
         return sb.toString();
     }
 
@@ -376,6 +381,23 @@ public class CertificateDaoImpl implements GiftCertificateDao {
         sb.append(param);
         sb.append("%'");
         return sb.toString();
+    }
+
+    private GiftCertificate addInfoForUpdate
+            (GiftCertificate certificateFromDb, GiftCertificate certificateForUpdate) {
+        if (certificateForUpdate.getName() == null) {
+            certificateForUpdate.setName(certificateFromDb.getName());
+        }
+        if (certificateForUpdate.getDescription() == null) {
+            certificateForUpdate.setDescription(certificateFromDb.getDescription());
+        }
+        if (certificateForUpdate.getPrice() == 0) {
+            certificateForUpdate.setPrice(certificateFromDb.getPrice());
+        }
+        if (certificateForUpdate.getDuration() == null) {
+            certificateForUpdate.setDuration(certificateFromDb.getDuration());
+        }
+        return certificateForUpdate;
     }
 
 }

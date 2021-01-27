@@ -5,7 +5,6 @@ import com.epam.esm.exception.DBCPDataSourceException;
 import com.epam.esm.exception.DaoException;
 import com.epam.esm.pool.DBCPDataSource;
 import com.epam.esm.entity.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
@@ -25,16 +24,14 @@ public class TagDaoImpl implements TagDao {
             " from tag_for_certificates";
     private static final String SQL_FIND_SPECIFIC_TAGS = "select tag_for_certificates.id_tag, tag_for_certificates.name  " +
             " from tag_for_certificates" +
-            " where tag_for_certificates.name = ?";
+            " where tag_for_certificates.id_tag = ?";
     private static final String SQL_FIND_LAST_ID = "select max(id_tag) from tag_for_certificates";
-
-    @Autowired
-    private DBCPDataSource dataSource;
 
     @Override
     public int create(Tag tag) throws DaoException {
         Connection connection = null;
         try {
+            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 connection.setAutoCommit(false);
@@ -69,6 +66,7 @@ public class TagDaoImpl implements TagDao {
     public void delete(long id) throws DaoException {
         Connection connection = null;
         try {
+            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 connection.setAutoCommit(false);
@@ -95,13 +93,14 @@ public class TagDaoImpl implements TagDao {
     }
 
     @Override
-    public List<Tag> find(String name) throws DaoException {
+    public List<Tag> find(long id) throws DaoException {
         Connection connection = null;
         try {
+            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 PreparedStatement ps = connection.prepareStatement(SQL_FIND_SPECIFIC_TAGS);
-                ps.setString(1, name);
+                ps.setInt(1, (int)id);
                 ResultSet rs = ps.executeQuery();
                 List<Tag> listOfEntities = createListOfEntities(rs);
                 return listOfEntities;
@@ -119,6 +118,7 @@ public class TagDaoImpl implements TagDao {
     public List<Tag> findAll() throws DaoException {
         Connection connection = null;
         try {
+            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 PreparedStatement ps = connection.prepareStatement(SQL_FIND_ALL_TAGS);

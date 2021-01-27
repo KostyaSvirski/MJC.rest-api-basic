@@ -1,13 +1,17 @@
 package com.epam.esm.entity;
 
+import com.epam.esm.converter.TagDTOToTagEntityConverter;
+import com.epam.esm.dto.TagDTO;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-public class GiftCertificate{
+public class GiftCertificate {
 
     private long id;
     private String name;
@@ -30,6 +34,10 @@ public class GiftCertificate{
     }
 
     public GiftCertificate() {
+    }
+
+    public GiftCertificate(long id) {
+        this.id = id;
     }
 
     public String getDescription() {
@@ -77,7 +85,7 @@ public class GiftCertificate{
     }
 
     public void setTagsDependsOnCertificate(Tag tag) {
-        if(tagsDependsOnCertificate == null) {
+        if (tagsDependsOnCertificate == null) {
             this.tagsDependsOnCertificate = new ArrayList<>();
         }
         this.tagsDependsOnCertificate.add(tag);
@@ -130,6 +138,7 @@ public class GiftCertificate{
         sb.append('}');
         return sb.toString();
     }
+
     public static class GiftCertificateBuilder {
 
 
@@ -160,18 +169,24 @@ public class GiftCertificate{
             return this;
         }
 
-        public GiftCertificateBuilder buildDuration(Period duration) {
-            newGiftCertificate.setDuration(duration);
+        public GiftCertificateBuilder buildDuration(String duration) {
+            if (duration != null) {
+                newGiftCertificate.setDuration(Period.parse(duration));
+            }
             return this;
         }
 
-        public GiftCertificateBuilder buildCreateDate(Instant createDate) {
-            newGiftCertificate.setCreateDate(createDate);
+        public GiftCertificateBuilder buildCreateDate(String createDate) {
+            if (createDate != null) {
+                newGiftCertificate.setCreateDate(Instant.parse(createDate));
+            }
             return this;
         }
 
-        public GiftCertificateBuilder buildLastUpdateDate(Instant lastUpdateDate) {
-            newGiftCertificate.setLastUpdateDate(lastUpdateDate);
+        public GiftCertificateBuilder buildLastUpdateDate(String lastUpdateDate) {
+            if (lastUpdateDate != null) {
+                newGiftCertificate.setLastUpdateDate(Instant.parse(lastUpdateDate));
+            }
             return this;
         }
 
@@ -180,8 +195,12 @@ public class GiftCertificate{
             return this;
         }
 
-        public GiftCertificateBuilder buildListOfTags(List<Tag> tags) {
-            newGiftCertificate.tagsDependsOnCertificate = tags;
+        public GiftCertificateBuilder buildListOfTags(List<TagDTO> tags) {
+            if (tags != null) {
+                newGiftCertificate.tagsDependsOnCertificate = tags.stream()
+                        .map(tag -> new TagDTOToTagEntityConverter().apply(tag))
+                        .collect(Collectors.toList());
+            }
             return this;
         }
 

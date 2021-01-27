@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public class DescriptionValidatorLink extends IntermediateCertificateLink {
 
-    private static final String REG_EXP_DESCRIPTION = "^[A-Za-z1-9 ]+$";
+    private static final String REG_EXP_DESCRIPTION = "^[A-Za-z 1-9-]+$";
 
     @Override
     public boolean validate(GiftCertificateDTO bean) {

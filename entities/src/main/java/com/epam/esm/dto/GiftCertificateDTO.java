@@ -3,7 +3,6 @@ package com.epam.esm.dto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.Period;
 import java.util.List;
 
 @Component
@@ -30,6 +29,40 @@ public class GiftCertificateDTO {
     }
 
     public GiftCertificateDTO() {
+    }
+
+    public GiftCertificateDTO(long id, String name, String description, long price,
+                              String duration, String createDate, String lastUpdateDate, List<TagDTO> tags) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.duration = duration;
+        this.createDate = createDate;
+        this.lastUpdateDate = lastUpdateDate;
+        this.tags = tags;
+    }
+
+    public GiftCertificateDTO(long id, String name, long price, String duration, String createDate,
+                              String lastUpdateDate, List<TagDTO> tags) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.duration = duration;
+        this.createDate = createDate;
+        this.lastUpdateDate = lastUpdateDate;
+        this.tags = tags;
+    }
+
+    public GiftCertificateDTO(String name, long price, String duration, List<TagDTO> tags) {
+        this.name = name;
+        this.price = price;
+        this.duration = duration;
+        this.tags = tags;
+    }
+
+    public GiftCertificateDTO(long id) {
+        this.id = id;
     }
 
     public long getId() {

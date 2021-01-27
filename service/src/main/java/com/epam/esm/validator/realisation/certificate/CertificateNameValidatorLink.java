@@ -8,10 +8,13 @@ import java.util.regex.Pattern;
 
 public class CertificateNameValidatorLink extends IntermediateCertificateLink {
 
-    private static final String REG_EXP_NAME = "^[A-Za-z ]+$";
+    private static final String REG_EXP_NAME = "^[A-Za-z 1-9-]+$";
 
     @Override
     public boolean validate(GiftCertificateDTO bean) {
+        if(bean.getName() == null) {
+            return checkNextLink(bean);
+        }
         if (bean.getName().length() > 50) {
             return false;
         }

@@ -9,7 +9,7 @@ public interface BaseService<T> {
 
     List<T> findAll() throws ServiceException;
 
-    Optional<T> find(String name) throws ServiceException;
+    Optional<T> find(long id) throws ServiceException;
 
     int create(T bean) throws ServiceException;
 

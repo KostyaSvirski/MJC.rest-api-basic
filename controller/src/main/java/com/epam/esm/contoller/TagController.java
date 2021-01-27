@@ -25,52 +25,50 @@ public class TagController {
     TagService tagService;
 
     @GetMapping("/")
-    public ResponseEntity<List<TagDTO>> findAllTags() {
+    public ResponseEntity findAllTags() {
         List<TagDTO> allTags = null;
         try {
             allTags = tagService.findAll();
-            return new ResponseEntity<>(allTags, HttpStatus.OK);
+            return new ResponseEntity(allTags, HttpStatus.OK);
         } catch (ServiceException e) {
-            return new ResponseEntity<>(HttpStatus.resolve(500));
+            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/{name}")
-    public ResponseEntity<TagDTO> findSpecificTag(@PathVariable(required = false) String name) {
+    @GetMapping("/{id}")
+    public ResponseEntity findSpecificTag(@PathVariable long id) {
         Optional<TagDTO> tagToFind = null;
         try {
-            tagToFind = tagService.find(name);
-            if (!tagToFind.isPresent()) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            return new ResponseEntity<>(tagToFind.get(), HttpStatus.OK);
+            tagToFind = tagService.find(id);
+            return tagToFind.map(tagDTO -> new ResponseEntity(tagDTO, HttpStatus.OK))
+                    .orElseGet(() -> new ResponseEntity("not found", HttpStatus.NOT_FOUND));
         } catch (ServiceException e) {
-            return new ResponseEntity<>(HttpStatus.resolve(500));
+            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
 
     @PostMapping("/")
-    public ResponseEntity<Integer> addTag(@RequestBody TagDTO newTag) {
+    public ResponseEntity addTag(@RequestBody TagDTO newTag) {
         try {
             int result = tagService.create(newTag);
             if (result != 0) {
                 return new ResponseEntity(result, HttpStatus.CREATED);
             } else {
-                return new ResponseEntity(HttpStatus.BAD_REQUEST);
+                return new ResponseEntity("not valid data", HttpStatus.BAD_REQUEST);
             }
         } catch (ServiceException e) {
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @DeleteMapping("/")
-    public ResponseEntity deleteTag(@PathVariable(required = true) long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity deleteTag(@PathVariable long id) {
         try {
             tagService.delete(id);
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity("tag with id " + id + " deleted", HttpStatus.OK);
         } catch (ServiceException e) {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
