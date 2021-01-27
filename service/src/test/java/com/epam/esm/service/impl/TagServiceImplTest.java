@@ -8,16 +8,19 @@ import com.epam.esm.impl.TagDaoImpl;
 import com.epam.esm.service.TagService;
 import junit.framework.TestCase;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-class TagServiceImplTest extends TestCase {
+@ContextConfiguration(locations = {"src/main/webapp/WEB-INF/config/mvc-config.xml"})
+@ExtendWith(SpringExtension.class)
+class TagServiceImplTest {
 
     @Autowired
     private TagService service;

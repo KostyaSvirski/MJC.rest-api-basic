@@ -7,8 +7,10 @@ import com.epam.esm.exception.DBCPDataSourceException;
 import com.epam.esm.exception.DaoException;
 import com.epam.esm.pool.DBCPDataSource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -23,6 +25,9 @@ import java.util.List;
 
 @Repository
 public class CertificateDaoImpl implements GiftCertificateDao {
+
+    @Autowired
+    private DBCPDataSource dataSource;
 
     private static final String SQL_CREATE_CERTIFICATE = "insert into gift_certificate (name, description, price," +
             " duration, create_date, last_update_date) values (?, ?, ?, ?, ?, ?)";
@@ -89,7 +94,6 @@ public class CertificateDaoImpl implements GiftCertificateDao {
     public int create(GiftCertificate certificate) throws DaoException {
         Connection connection = null;
         try {
-            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 connection.setAutoCommit(false);
@@ -144,7 +148,6 @@ public class CertificateDaoImpl implements GiftCertificateDao {
     public void delete(long id) throws DaoException {
         Connection connection = null;
         try {
-            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 connection.setAutoCommit(false);
@@ -174,7 +177,6 @@ public class CertificateDaoImpl implements GiftCertificateDao {
     public List<GiftCertificate> find(long id) throws DaoException {
         Connection connection = null;
         try {
-            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 PreparedStatement ps = connection.prepareStatement(SQL_FIND_SPECIFIC_CERTIFICATE);
@@ -196,7 +198,6 @@ public class CertificateDaoImpl implements GiftCertificateDao {
     public List<GiftCertificate> findAll() throws DaoException {
         Connection connection = null;
         try {
-            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 PreparedStatement ps = connection.prepareStatement(SQL_FIND_ALL_CERTIFICATES);
@@ -216,7 +217,6 @@ public class CertificateDaoImpl implements GiftCertificateDao {
     @Override
     public void update(GiftCertificate certificateForUpdate, long id) throws DaoException {
         try {
-            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             Connection connection = dataSource.getConnection();
             try {
                 connection.setAutoCommit(false);
@@ -255,7 +255,6 @@ public class CertificateDaoImpl implements GiftCertificateDao {
     @Override
     public List<GiftCertificate> sortCertificates(String field, String method) throws DaoException {
         try {
-            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             Connection connection = dataSource.getConnection();
             try {
                 String specificRequest = createSpecificRequestForSort(field, method);
@@ -286,7 +285,6 @@ public class CertificateDaoImpl implements GiftCertificateDao {
     private List<GiftCertificate> searchCertificatesByParam(String param, String sqlSearchRequest)
             throws DaoException {
         try {
-            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             Connection connection = dataSource.getConnection();
             try {
                 String specificRequest = createSpecificRequest(param, sqlSearchRequest);
@@ -306,7 +304,6 @@ public class CertificateDaoImpl implements GiftCertificateDao {
     @Override
     public List<GiftCertificate> searchByTag(String nameOfTag) throws DaoException {
         try {
-            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             Connection connection = dataSource.getConnection();
             try {
                 PreparedStatement ps = connection.prepareStatement(SQL_FIND_BY_TAGS);

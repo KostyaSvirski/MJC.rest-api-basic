@@ -5,6 +5,7 @@ import com.epam.esm.exception.DBCPDataSourceException;
 import com.epam.esm.exception.DaoException;
 import com.epam.esm.pool.DBCPDataSource;
 import com.epam.esm.entity.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
@@ -16,6 +17,9 @@ import java.util.List;
 
 @Repository
 public class TagDaoImpl implements TagDao {
+
+    @Autowired
+    private DBCPDataSource dataSource;
 
     private static final String SQL_CREATE_TAG = "insert into tag_for_certificates (name) values (?)";
     private static final String SQL_DELETE_JUNCTIONS = "delete from junction_gift_cerficates_and_tags where id_tag = ?";
@@ -31,7 +35,6 @@ public class TagDaoImpl implements TagDao {
     public int create(Tag tag) throws DaoException {
         Connection connection = null;
         try {
-            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 connection.setAutoCommit(false);
@@ -66,7 +69,6 @@ public class TagDaoImpl implements TagDao {
     public void delete(long id) throws DaoException {
         Connection connection = null;
         try {
-            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 connection.setAutoCommit(false);
@@ -96,7 +98,6 @@ public class TagDaoImpl implements TagDao {
     public List<Tag> find(long id) throws DaoException {
         Connection connection = null;
         try {
-            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 PreparedStatement ps = connection.prepareStatement(SQL_FIND_SPECIFIC_TAGS);
@@ -118,7 +119,6 @@ public class TagDaoImpl implements TagDao {
     public List<Tag> findAll() throws DaoException {
         Connection connection = null;
         try {
-            DBCPDataSource dataSource = DBCPDataSource.getInstance();
             connection = dataSource.getConnection();
             try {
                 PreparedStatement ps = connection.prepareStatement(SQL_FIND_ALL_TAGS);
